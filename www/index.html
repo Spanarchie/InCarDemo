@@ -1,0 +1,186 @@
+<html>
+<head>
+	<!-- Source: http://wiki.openstreetmap.org/wiki/Openlayers_Track_example -->
+	<title>Simple OSM GPX Track</title>
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script type="text/javascript" src="./js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="./js/pc_cc.js"></script>
+    <script type="text/javascript" src="./js/mapping.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/pc_cc.css" media="screen" />
+    <!-- Demo Styles -->
+    <link href="css/demo.css" rel="stylesheet">
+
+
+    <!-- Modal Styles -->
+    <link href="css/modal.css" rel="stylesheet">
+	<!-- bring in the OpenLayers javascript library
+		 (here we bring it from the remote site, but you could
+		 easily serve up this javascript yourself) -->
+	<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+	<!-- bring in the OpenStreetMap OpenLayers layers.
+		 Using this hosted file will make sure we are kept up
+		 to date with any necessary changes -->
+	<script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+	<script> 
+    	$.support.cors = true;
+	</script>
+ 
+	<script type="text/javascript">
+		// Start position for the map (hardcoded here for simplicity,
+		// but maybe you want to get this from the URL params)
+		var lat=51.488620
+		var lon=-0.1044785
+		var zoom=16
+ 
+		var map; //complex object of type OpenLayers.Map
+ 
+		function init() {
+			map = new OpenLayers.Map ("map", {
+				controls:[
+					new OpenLayers.Control.Navigation(),
+					new OpenLayers.Control.PanZoomBar(),
+					new OpenLayers.Control.LayerSwitcher(),
+					new OpenLayers.Control.Attribution()],
+				maxResolution: 156543.0399,
+				numZoomLevels: 19,
+				units: 'm',
+				projection: new OpenLayers.Projection("EPSG:900913"),
+				displayProjection: new OpenLayers.Projection("EPSG:4326")
+			} );
+ 
+			// Define the map layer
+			// Here we use a predefined layer that will be kept up to date with URL changes
+			layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+			map.addLayer(layerMapnik);
+			layerCycleMap = new OpenLayers.Layer.OSM.CycleMap("CycleMap");
+			map.addLayer(layerCycleMap);
+			layerMarkers = new OpenLayers.Layer.Markers("Markers");
+			map.addLayer(layerMarkers);
+ 
+			// Add the Layer with the GPX Track
+			var lgpx = new OpenLayers.Layer.Vector("Lakeside cycle ride", {
+				strategies: [new OpenLayers.Strategy.Fixed()],
+				protocol: new OpenLayers.Protocol.HTTP({
+					url: "./route1.gpx",
+					format: new OpenLayers.Format.GPX()
+				}),
+				style: {strokeColor: "black", strokeWidth: 3, strokeOpacity: 0.95},
+				projection: new OpenLayers.Projection("EPSG:4326")
+			});
+			map.addLayer(lgpx);
+ 
+			var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+			map.setCenter(lonLat, zoom);
+
+			lat=51.488054
+			lon=-0.111607
+			lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+			
+ 
+			var size = new OpenLayers.Size(21, 25);
+			var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+			var icon = new OpenLayers.Icon('./images/icon-map-violenceagainstperson.png',size,offset);
+			layerMarkers.addMarker(new OpenLayers.Marker(lonLat,icon));
+		}
+	</script>
+	<style type="text/css">
+		div.olMapViewport {
+	     z-index: 0;
+		}
+	</style>
+ 
+</head>
+<!-- body.onload is called once the page is loaded (call the 'init' function) -->
+<body onload="init();">
+<div id="mastTitle">
+        <a href="#modal">getIncident</a>
+        <a href="#modal2"><img src="./images/icon-map-violenceagainstperson.png" height="30px" ></a>
+        <a href="#modal3"><img src="./images/icon-map-warning.png" height="30px" ></a>
+        </div>
+	<!-- define a DIV into which the map will appear. Make it take up the whole window -->
+	<div style="width:100%; height:100%" id="map"></div>
+
+
+
+<div id="modal">
+    <div class="modal-content">
+      <div class="header">
+        <h3>Assistance Required :</h3>                               Vehicle - Stationary
+      </div>
+      <div class="copy">
+        <p>   <img src="./images/icon-map-violenceagainstperson.png" height="30px" > Violence against the person @ 170 Kennington Lane.</p><br>
+        <p>   <img src="./images/icon-map-warning.png" height="30px" > Safety warning flaged - Weapons</p>
+      </div>
+      <div class="cf footer">
+        <a href="#" onclick="Route()" class="btn">Accept</a>
+        <a href="#" onclick="DispLoc()" class="btn">Reject</a>
+      </div>
+    </div>
+    <div class="overlay"></div>
+  </div>
+
+
+  <div id="modal2">
+    <div class="modal-content">
+      <div class="header">
+        <h3><img src="./images/icon-map-violenceagainstperson.png" height="40px" > Incident Details :  Evnt-1324-04-2012</h3>  
+        Vehicle - Stationary 
+      </div>
+
+	      <div class="copy" style="height:110px">
+			      	<div class="Location" style="width:50%; float: left;">
+			      	    <b>Location</b> : 170 Kennington Lane
+			      	               London SE11 5DP
+			      	    <b>Building Name</b> : Edinburgh House<br>History :Recorded use of weapons <a href="#modal3"> More Info </a>
+			         		
+			      	</div>
+			      	<div class="event" style="width:40%; float: left; ">
+			      		Called in by Witness - Jane Jones (still-at-scene)
+			      		Two W2 males assaulting a W1 Male.
+			      		To the right of the main enterance.
+			      	</div>
+	      </div>
+      <div class="cf footer">
+      		Assigned  to LX65E  :  En-Route    ETA: 2 min
+        <a href="#" class="btn">Close</a>
+      </div>
+    </div>
+    <div class="overlay"></div>
+  </div>
+
+  <div id="modal3">
+    <div class="modal-content">
+      <div class="header">
+        <h3> <img src="./images/icon-map-warning.png" height="40px" > Safety/ Additional Details :  Evnt-1324-04-2012</h3>  Vehicle - Stationary          
+      </div>
+      <div class="copy">
+        <div class="copy" style="height:110px">
+			      	<div class="Location" style="width:50%; float: left;">
+			      		<p>
+			      		Insident started in the Dog House(Pub)<br>
+			      	    History / Recorded use of weapons: <br>
+			      	         2  Knife Stabbings - 1 Fatal<br>
+			      	         5  Attacks with Clubs ( Bar / Bat)<br>
+			      	         1  Brandishing a sword <br>
+			         	</p>	
+			      	</div>
+			      	<div class="event" style="width:40%; float: left; ">
+						Assigned LX65E - 
+			      		Opening Codes<br>
+							100  Violence Against the Person<br>
+							200  ABH<br>
+							300  GBH<br>
+						
+			      	</div>
+	      </div>
+      </div>
+      <div class="cf footer">
+      		Assigned  to LX65E  :  On - Scene  
+        <a href="#" class="btn">Close</a>
+      </div>
+    </div>
+    <div class="overlay"></div>
+  </div>
+	
+</body>
+</html>
